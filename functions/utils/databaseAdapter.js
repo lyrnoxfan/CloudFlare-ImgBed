@@ -11,13 +11,14 @@ import { D1Database } from './d1Database.js';
  * @returns {Object} 数据库适配器实例
  */
 export function createDatabaseAdapter(env) {
-    // 检查是否配置了数据库
-    if (env.img_url && typeof env.img_url.get === 'function') {
-        // 使用KV存储
-        return new KVAdapter(env.img_url);
-    } else if (env.img_d1 && typeof env.img_d1.prepare === 'function') {
+    // 检查是否配置了数据库（2026-10-14 起 D1 为主存储：必须 D1 优先。
+    // 此前 KV 优先导致绑着 KV 时 D1 永不生效，迁数后新数据仍全写 KV。）
+    if (env.img_d1 && typeof env.img_d1.prepare === 'function') {
         // 使用D1数据库
         return new D1Database(env.img_d1);
+    } else if (env.img_url && typeof env.img_url.get === 'function') {
+        // 使用KV存储
+        return new KVAdapter(env.img_url);
     } else {
         console.error('No database configured. Please configure either KV (env.img_url) or D1 (env.img_d1).');
         return null;
