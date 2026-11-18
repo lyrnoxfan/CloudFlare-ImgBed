@@ -149,8 +149,13 @@ async function handleGet(request, env) {
                  return new Response('File not found', { status: fileResponse.status, statusText: fileResponse.statusText });
             }
 
-            const response = new Response(fileResponse.body, fileResponse);
-            response.headers.set('Access-Control-Allow-Origin', '*');
+            const headers = new Headers(fileResponse.headers);
+            headers.set('Access-Control-Allow-Origin', '*');
+            const response = new Response(fileResponse.body, {
+                status: fileResponse.status,
+                statusText: fileResponse.statusText,
+                headers,
+            });
 
             return response;
         } catch (error) {
