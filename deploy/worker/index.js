@@ -302,6 +302,12 @@ export default {
         const url = new URL(request.url);
         const pathname = url.pathname;
 
+        // Source map 不对外提供：生产构建的 .map 会泄露完整前端源码。
+        // 即使某次构建又产出了 .map 文件，这里也一律返回 404。
+        if (pathname.endsWith('.map')) {
+            return new Response('Not Found', { status: 404 });
+        }
+
         const matched = matchRoute(pathname);
 
         if (!matched) {

@@ -378,6 +378,16 @@ app.all('*', async (c, next) => {
     await next();
 });
 
+// Source map 不对外提供：生产构建的 .map 会泄露完整前端源码
+// （文件名、源码、接口路径）。即使某次构建又产出了 .map 文件，
+// 这里也一律返回 404，绝不落到静态文件服务。
+app.use('/*', async (c, next) => {
+    if (new URL(c.req.url).pathname.endsWith('.map')) {
+        return c.text('Not Found', 404);
+    }
+    await next();
+});
+
 // 静态文件服务
 app.use('/*', serveStatic({
     root: './frontend-dist',
